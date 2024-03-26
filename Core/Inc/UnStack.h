@@ -200,6 +200,7 @@ struct CORE_API FFrame : public FOutputDevice
 	UObject*	Object;
 	BYTE*		Code;
 	BYTE*		Locals;
+	FFrame*		Parent;
 
 	// Constructors.
 	FFrame( UObject* InObject );

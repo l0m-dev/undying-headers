@@ -44,7 +44,7 @@ class ENGINE_API UAudioSubsystem : public USubsystem
 	virtual void UnregisterMusic( UMusic* Music )=0;
 	virtual UBOOL PlaySound( AActor* Actor, INT Id, USound* Sound, FVector Location, FLOAT Volume, FLOAT Radius, FLOAT Pitch )=0;
 	virtual UBOOL SoundIDActive( INT Id )=0;
-	virtual UBOOL StopSoundID( INT Id )=0;
+	virtual UBOOL StopSoundId( INT Id )=0;
 	virtual void NoteDestroy( AActor* Actor )=0;
 	virtual UBOOL GetLowQualitySetting()=0;
 	virtual UViewport* GetViewport()=0;
@@ -60,7 +60,8 @@ class ENGINE_API UAudioSubsystem : public USubsystem
 //
 // Sound data.
 //
-class ENGINE_API FSoundData : public TLazyArray<BYTE>
+// removed ENGINE_API, instead of using: template class DLL_EXPORT TArray<BYTE>;
+class FSoundData : public TLazyArray<BYTE>
 {
 public:
 	USound* Owner;

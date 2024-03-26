@@ -6,6 +6,8 @@
 		* Created by Tim Sweeney
 =============================================================================*/
 
+#include "UnReplay.h"
+
 /*-----------------------------------------------------------------------------
 	Unreal game engine.
 -----------------------------------------------------------------------------*/
@@ -24,6 +26,8 @@ class ENGINE_API UGameEngine : public UEngine
 	FURL			LastURL;
 	TArray<FString> ServerActors;
 	TArray<FString> ServerPackages;
+	UViewport*		GViewport;
+	FReplay		    Replay;
 
 	// Constructors.
 	UGameEngine();

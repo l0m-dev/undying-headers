@@ -189,7 +189,7 @@ class CORE_API FOutputDevice
 public:
 	// FOutputDevice interface.
 	virtual void Serialize(const TCHAR* V, EName Event) = 0;
-	virtual void SuppressAllEnable(int);
+	virtual void SuppressAllEnable(UBOOL Enable);
 
 	// Simple text printing.
 	void Log(const TCHAR* S);
@@ -211,7 +211,7 @@ public:
 class CORE_API FMalloc
 {
 public:
-	virtual void unk();
+	virtual void* MallocAligned(DWORD Count, const TCHAR* Tag, INT Alignment) = 0;
 	virtual void* Malloc(DWORD Count, const TCHAR* Tag) = 0;
 	virtual void* Realloc(void* Original, DWORD Count, const TCHAR* Tag) = 0;
 	virtual void Free(void* Original) = 0;

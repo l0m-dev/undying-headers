@@ -100,7 +100,7 @@ class CORE_API UField : public UObject
 	NO_DEFAULT_CONSTRUCTOR(UField)
 
 	// Constants.
-	enum {HASH_COUNT = 1024};
+	enum {HASH_COUNT = 256};
 
 	// Variables.
 	UField*			SuperField;
@@ -299,7 +299,7 @@ class CORE_API UFunction : public UStruct
 	_WORD ReturnValueOffset;
 	void (UObject::*Func)( FFrame& TheStack, RESULT_DECL );
 #if DO_GUARD_SLOW
-	SQWORD Calls,Cycles;
+	SQWORD Calls,Cycles,Unk;
 #endif
 
 	// Constructors.
@@ -421,6 +421,7 @@ class CORE_API UClass : public UState
 	FGuid				ClassGuid;
 	UClass*				ClassWithin;
 	FName				ClassConfigName;
+	DWORD 				ClassCRC;
 	TArray<FRepRecord>	ClassReps;
 	TArray<UField*>		NetFields;
 	TArray<FDependency> Dependencies;

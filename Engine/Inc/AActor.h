@@ -8,7 +8,7 @@
 	void Destroy();
 
 	// UObject interface.
-	virtual INT* GetOptimizedRepList( BYTE* InDefault, FPropertyRetirement* Retire, INT* Ptr, UPackageMap* Map, INT NumReps );
+	virtual INT* GetOptimizedRepList( BYTE* InDefault, FPropertyRetirement* Retire, INT* Ptr, UPackageMap* Map );
 	virtual UBOOL ShouldDoScriptReplication() {return 1;}
 	virtual UBOOL NoVariablesToReplicate(AActor *OldVer) {return 0;};
 	virtual UBOOL CheckRecentChanges() {return 0;};
@@ -32,8 +32,8 @@
 	UBOOL IsBlockedBy( const AActor* Other ) const;
 	UBOOL IsInZone( const AZoneInfo* Other ) const;
 	UBOOL IsBasedOn( const AActor *Other ) const;
+	FLOAT WorldLightRadius() const { return 25.f * ((INT)LightRadius + 1); }
 	virtual FLOAT GetNetPriority( AActor* Sent, FLOAT Time, FLOAT Lag );
-	virtual FLOAT WorldLightRadius() const {return 25.f * ((INT)LightRadius+1);}
 	virtual UBOOL Tick( FLOAT DeltaTime, enum ELevelTick TickType );
 	virtual void PostEditMove() {}
 	virtual void PreRaytrace() {}
@@ -41,8 +41,6 @@
 	virtual void Spawned() {}
 	virtual void PreNetReceive();
 	virtual void PostNetReceive();
-	virtual UTexture* GetSkin( INT Index );
-	virtual FMeshAnimSeq* GetAnim( FName SequenceName );
 	virtual FCoords ToLocal() const
 	{
 		return GMath.UnitCoords / Rotation / Location;

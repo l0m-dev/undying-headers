@@ -26,11 +26,10 @@ class ENGINE_API UEngine : public USubsystem
 	class UClient*			Client;
 	class URenderBase*		Render;
 	class UAudioSubsystem*	Audio;
-	//INT					TickCycles, GameCycles, ClientCycles;
 	INT						CacheSizeMegs;
 	BITFIELD				UseSound;
 	FLOAT					CurrentTickRate;
-	FLOAT					LevelTime;
+	FLOAT					TimeSinceInput;
 
 	// Constructors.
 	UEngine();

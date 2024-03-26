@@ -198,112 +198,112 @@ public:
 	{
 		return Data;
 	}
-	UBOOL IsValidIndex(INT i) const
+	UBOOL IsValidIndex( INT i ) const
 	{
-		return i >= 0 && i < ArrayNum;
+		return i>=0 && i<ArrayNum;
 	}
 	INT Num() const
 	{
-		checkSlow(ArrayNum >= 0);
-		checkSlow(ArrayMax >= ArrayNum);
+		checkSlow(ArrayNum>=0);
+		checkSlow(ArrayMax>=ArrayNum);
 		return ArrayNum;
 	}
-	void InsertZeroed(INT Index, INT Count, INT ElementSize)
+	void InsertZeroed( INT Index, INT Count, INT ElementSize )
 	{
 		guardSlow(FArray::InsertZeroed);
-		Insert(Index, Count, ElementSize);
-		appMemzero((BYTE*)Data + Index * ElementSize, Count * ElementSize);
+		Insert( Index, Count, ElementSize );
+		appMemzero( (BYTE*)Data+Index*ElementSize, Count*ElementSize );
 		unguardSlow;
 	}
-	void Insert(INT Index, INT Count, INT ElementSize)
+	void Insert( INT Index, INT Count, INT ElementSize )
 	{
 		guardSlow(FArray::Insert);
-		checkSlow(Count >= 0);
-		checkSlow(ArrayNum >= 0);
-		checkSlow(ArrayMax >= ArrayNum);
-		checkSlow(Index >= 0);
-		checkSlow(Index <= ArrayNum);
+		checkSlow(Count>=0);
+		checkSlow(ArrayNum>=0);
+		checkSlow(ArrayMax>=ArrayNum);
+		checkSlow(Index>=0);
+		checkSlow(Index<=ArrayNum);
 
 		INT OldNum = ArrayNum;
-		if ((ArrayNum += Count) > ArrayMax)
+		if( (ArrayNum+=Count)>ArrayMax )
 		{
-			ArrayMax = ArrayNum + 3 * ArrayNum / 8 + 32;
-			Realloc(ElementSize);
+			ArrayMax = ArrayNum + 3*ArrayNum/8 + 32;
+			Realloc( ElementSize );
 		}
 		appMemmove
 		(
-			(BYTE*)Data + (Index + Count) * ElementSize,
-			(BYTE*)Data + (Index)*ElementSize,
-			(OldNum - Index) * ElementSize
+			(BYTE*)Data + (Index+Count )*ElementSize,
+			(BYTE*)Data + (Index       )*ElementSize,
+			              (OldNum-Index)*ElementSize
 		);
 
 		unguardSlow;
 	}
-	INT Add(INT Count, INT ElementSize)
+	INT Add( INT Count, INT ElementSize )
 	{
 		guardSlow(FArray::Add);
-		checkSlow(Count >= 0);
-		checkSlow(ArrayNum >= 0);
-		checkSlow(ArrayMax >= ArrayNum);
+		checkSlow(Count>=0);
+		checkSlow(ArrayNum>=0);
+		checkSlow(ArrayMax>=ArrayNum);
 
 		INT Index = ArrayNum;
-		if ((ArrayNum += Count) > ArrayMax)
+		if( (ArrayNum+=Count)>ArrayMax )
 		{
-			ArrayMax = ArrayNum + 3 * ArrayNum / 8 + 32;
-			Realloc(ElementSize);
+			ArrayMax = ArrayNum + 3*ArrayNum/8 + 32;
+			Realloc( ElementSize );
 		}
 
 		return Index;
 		unguardSlow;
 	}
-	INT AddZeroed(INT ElementSize, INT n = 1)
+	INT AddZeroed( INT ElementSize, INT n=1 )
 	{
 		guardSlow(FArray::AddZeroed);
-		INT Index = Add(n, ElementSize);
-		appMemzero((BYTE*)Data + Index * ElementSize, n * ElementSize);
+		INT Index = Add( n, ElementSize );
+		appMemzero( (BYTE*)Data+Index*ElementSize, n*ElementSize );
 		return Index;
 		unguardSlow;
 	}
-	void Shrink(INT ElementSize)
+	void Shrink( INT ElementSize )
 	{
 		guardSlow(FArray::Shrink);
-		checkSlow(ArrayNum >= 0);
-		checkSlow(ArrayMax >= ArrayNum);
-		if (ArrayMax != ArrayNum)
+		checkSlow(ArrayNum>=0);
+		checkSlow(ArrayMax>=ArrayNum);
+		if( ArrayMax != ArrayNum )
 		{
 			ArrayMax = ArrayNum;
-			Realloc(ElementSize);
+			Realloc( ElementSize );
 		}
 		unguardSlow;
 	}
-	void Empty(INT ElementSize, INT Slack = 0)
+	void Empty( INT ElementSize, INT Slack=0 )
 	{
 		guardSlow(FArray::Empty);
 		ArrayNum = 0;
 		ArrayMax = Slack;
-		Realloc(ElementSize);
+		Realloc( ElementSize );
 		unguardSlow;
 	}
 	FArray()
-		: ArrayNum(0)
-		, ArrayMax(0)
-		, Data(NULL)
+	:	ArrayNum( 0 )
+	,	ArrayMax( 0 )
+	,	Data	( NULL )
 	{}
-	FArray(ENoInit)
+	FArray( ENoInit )
 	{}
 	~FArray()
 	{
 		guardSlow(FArray::~FArray);
-		if (Data)
-			appFree(Data);
+		if( Data )
+			appFree( Data );
 		Data = NULL;
 		ArrayNum = ArrayMax = 0;
 		unguardSlow;
 	}
-	void CountBytes(FArchive& Ar, INT ElementSize)
+	void CountBytes( FArchive& Ar, INT ElementSize )
 	{
 		guardSlow(FArray::CountBytes);
-		Ar.CountBytes(ArrayNum * ElementSize, ArrayMax * ElementSize);
+		Ar.CountBytes( ArrayNum*ElementSize, ArrayMax*ElementSize );
 		unguardSlow;
 	}
 	void Remove(INT Index, INT Count, INT ElementSize)
@@ -328,19 +328,19 @@ public:
 		checkSlow(ArrayNum >= 0);
 		checkSlow(ArrayMax >= ArrayNum);
 	}
-	//protected:
+protected:
 	void Realloc(INT ElementSize)
 	{
-		//realloc(Data, ElementSize);
-		realloc(Data, ArrayMax * ElementSize);
-		//printf("HELLO");
+		guard(TArray::Realloc);
+		Data = appRealloc(Data, ArrayMax * ElementSize, nullptr);
+		unguardf((TEXT("%i*%i"), ArrayMax, ElementSize));
 	}
-	FArray(INT InNum, INT ElementSize)
-		: ArrayNum(InNum)
-		, ArrayMax(InNum)
-		, Data(NULL)
+	FArray( INT InNum, INT ElementSize )
+	:	ArrayNum( InNum )
+	,	ArrayMax( InNum )
+	,	Data    ( NULL  )
 	{
-		Realloc(ElementSize);
+		Realloc( ElementSize );
 	}
 	void* Data;
 	INT	  ArrayNum;
@@ -355,239 +355,239 @@ template< class T > class TArray : public FArray
 public:
 	typedef T ElementType;
 	TArray()
-		: FArray()
+	:	FArray()
 	{}
-	TArray(INT InNum)
-		: FArray(InNum, sizeof(T))
+	TArray( INT InNum )
+	:	FArray( InNum, sizeof(T) )
 	{}
-	TArray(const TArray& Other)
-		: FArray(Other.ArrayNum, sizeof(T))
+	TArray( const TArray& Other )
+	:	FArray( Other.ArrayNum, sizeof(T) )
 	{
 		guardSlow(TArray::copyctor);
-		if (TTypeInfo<T>::NeedsDestructor())
+		if( TTypeInfo<T>::NeedsDestructor() )
 		{
-			ArrayNum = 0;
-			for (INT i = 0; i < Other.ArrayNum; i++)
+			ArrayNum=0;
+			for( INT i=0; i<Other.ArrayNum; i++ )
 				new(*this)T(Other(i));
 		}
-		else if (sizeof(T) != 1)
+		else if( sizeof(T)!=1 )
 		{
-			for (INT i = 0; i < ArrayNum; i++)
+			for( INT i=0; i<ArrayNum; i++ )
 				(*this)(i) = Other(i);
 		}
 		else
 		{
-			appMemcpy(&(*this)(0), &Other(0), ArrayNum * sizeof(T));
+			appMemcpy( &(*this)(0), &Other(0), ArrayNum * sizeof(T) );
 		}
 		unguardSlow;
 	}
-	TArray(ENoInit)
-		: FArray(E_NoInit)
+	TArray( ENoInit )
+	: FArray( E_NoInit )
 	{}
 	~TArray()
 	{
-		checkSlow(ArrayNum >= 0);
-		checkSlow(ArrayMax >= ArrayNum);
-		Remove(0, ArrayNum);
+		checkSlow(ArrayNum>=0);
+		checkSlow(ArrayMax>=ArrayNum);
+		Remove( 0, ArrayNum );
 	}
-	T& operator()(INT i)
+    T& operator()( INT i )
 	{
 		guardSlow(TArray::operator());
-		checkSlow(i >= 0);
-		checkSlow(i <= ArrayNum);
-		checkSlow(ArrayMax >= ArrayNum);
+		checkSlow(i>=0);
+		checkSlow(i<=ArrayNum);
+		checkSlow(ArrayMax>=ArrayNum);
 		return ((T*)Data)[i];
 		unguardSlow;
 	}
-	const T& operator()(INT i) const
+	const T& operator()( INT i ) const
 	{
 		guardSlow(TArray::operator());
-		checkSlow(i >= 0);
-		checkSlow(i <= ArrayNum);
-		checkSlow(ArrayMax >= ArrayNum);
+		checkSlow(i>=0);
+		checkSlow(i<=ArrayNum);
+		checkSlow(ArrayMax>=ArrayNum);
 		return ((T*)Data)[i];
 		unguardSlow;
 	}
 	T Pop()
 	{
 		guardSlow(TArray::Pop);
-		check(ArrayNum > 0);
-		checkSlow(ArrayMax >= ArrayNum);
-		T Result = ((T*)Data)[ArrayNum - 1];
-		Remove(ArrayNum - 1);
+		check(ArrayNum>0);
+		checkSlow(ArrayMax>=ArrayNum);
+		T Result = ((T*)Data)[ArrayNum-1];
+		Remove( ArrayNum-1 );
 		return Result;
 		unguardSlow;
 	}
-	T& Last(INT c = 0)
+	T& Last( INT c=0 )
 	{
 		guardSlow(TArray::Last);
-		check(c < ArrayNum);
-		checkSlow(ArrayMax >= ArrayNum);
-		return ((T*)Data)[ArrayNum - c - 1];
+		check(c<ArrayNum);
+		checkSlow(ArrayMax>=ArrayNum);
+		return ((T*)Data)[ArrayNum-c-1];
 		unguardSlow;
 	}
-	const T& Last(INT c = 0) const
+	const T& Last( INT c=0 ) const
 	{
 		guardSlow(TArray::Last);
-		checkSlow(c < ArrayNum);
-		checkSlow(ArrayMax >= ArrayNum);
-		return ((T*)Data)[ArrayNum - c - 1];
+		checkSlow(c<ArrayNum);
+		checkSlow(ArrayMax>=ArrayNum);
+		return ((T*)Data)[ArrayNum-c-1];
 		unguardSlow;
 	}
 	void Shrink()
 	{
 		guardSlow(TArray::Shrink);
-		FArray::Shrink(sizeof(T));
+		FArray::Shrink( sizeof(T) );
 		unguardSlow;
 	}
-	UBOOL FindItem(const T& Item, INT& Index) const
+	UBOOL FindItem( const T& Item, INT& Index ) const
 	{
 		guardSlow(TArray::FindItem);
-		for (Index = 0; Index < ArrayNum; Index++)
-			if ((*this)(Index) == Item)
+		for( Index=0; Index<ArrayNum; Index++ )
+			if( (*this)(Index)==Item )
 				return 1;
 		return 0;
 		unguardSlow;
 	}
-	INT FindItemIndex(const T& Item) const
+	INT FindItemIndex( const T& Item ) const
 	{
 		guardSlow(TArray::FindItemIndex);
-		for (INT Index = 0; Index < ArrayNum; Index++)
-			if ((*this)(Index) == Item)
+		for( INT Index=0; Index<ArrayNum; Index++ )
+			if( (*this)(Index)==Item )
 				return Index;
 		return INDEX_NONE;
 		unguardSlow;
 	}
-	friend FArchive& operator<<(FArchive& Ar, TArray& A)
+	friend FArchive& operator<<( FArchive& Ar, TArray& A )
 	{
-		guard(TArray << );
-		A.CountBytes(Ar);
-		if (sizeof(T) == 1)
+		guard(TArray<<);
+		A.CountBytes( Ar );
+		if( sizeof(T)==1 )
 		{
 			// Serialize simple bytes which require no construction or destruction.
 			Ar << AR_INDEX(A.ArrayNum);
-			if (Ar.IsLoading())
+			if( Ar.IsLoading() )
 			{
 				A.ArrayMax = A.ArrayNum;
-				A.Realloc(sizeof(T));
+				A.Realloc( sizeof(T) );
 			}
-			Ar.Serialize(&A(0), A.Num());
+			Ar.Serialize( &A(0), A.Num() );
 		}
-		else if (Ar.IsLoading())
+		else if( Ar.IsLoading() )
 		{
 			// Load array.
 			INT NewNum;
 			Ar << AR_INDEX(NewNum);
-			A.Empty(NewNum);
-			for (INT i = 0; i < NewNum; i++)
+			A.Empty( NewNum );
+			for( INT i=0; i<NewNum; i++ )
 				Ar << *new(A)T;
 		}
 		else
 		{
 			// Save array.
 			Ar << AR_INDEX(A.ArrayNum);
-			for (INT i = 0; i < A.ArrayNum; i++)
-				Ar << A(i);
+			for( INT i=0; i<A.ArrayNum; i++ )
+				Ar << A( i );
 		}
 		return Ar;
 		unguard;
 	}
-	void CountBytes(FArchive& Ar)
+	void CountBytes( FArchive& Ar )
 	{
 		guardSlow(TArray::CountBytes);
-		FArray::CountBytes(Ar, sizeof(T));
+		FArray::CountBytes( Ar, sizeof(T) );
 		unguardSlow;
 	}
 
 	// Add, Insert, Remove, Empty interface.
-	INT Add(INT n = 1)
+	INT Add( INT n=1 )
 	{
 		guardSlow(TArray::Add);
 		checkSlow(!TTypeInfo<T>::DefinitelyNeedsDestructor());
-		return FArray::Add(n, sizeof(T));
+		return FArray::Add( n, sizeof(T) );
 		unguardSlow;
 	}
-	void Insert(INT Index, INT Count = 1)
+	void Insert( INT Index, INT Count=1 )
 	{
 		guardSlow(TArray::Insert);
 		checkSlow(!TTypeInfo<T>::DefinitelyNeedsDestructor());
-		FArray::Insert(Index, Count, sizeof(T));
+		FArray::Insert( Index, Count, sizeof(T) );
 		unguardSlow;
 	}
-	void InsertZeroed(INT Index, INT Count = 1)
+	void InsertZeroed( INT Index, INT Count=1 )
 	{
 		guardSlow(TArray::InsertZeroed);
 		checkSlow(!TTypeInfo<T>::DefinitelyNeedsDestructor());
-		FArray::InsertZeroed(Index, Count, sizeof(T));
+		FArray::InsertZeroed( Index, Count, sizeof(T) );
 		unguardSlow;
 	}
-	void Remove(INT Index, INT Count = 1)
+	void Remove( INT Index, INT Count=1 )
 	{
 		guardSlow(TArray::Remove);
-		check(Index >= 0);
-		check(Index <= ArrayNum);
-		check(Index + Count <= ArrayNum);
-		if (TTypeInfo<T>::NeedsDestructor())
-			for (INT i = Index; i < Index + Count; i++)
+		check(Index>=0);
+		check(Index<=ArrayNum);
+		check(Index+Count<=ArrayNum);
+		if( TTypeInfo<T>::NeedsDestructor() )
+			for( INT i=Index; i<Index+Count; i++ )
 				(&(*this)(i))->~T();
-		FArray::Remove(Index, Count, sizeof(T));
+		FArray::Remove( Index, Count, sizeof(T) );
 		unguardSlow;
 	}
-	void Empty(INT Slack = 0)
+	void Empty( INT Slack=0 )
 	{
 		guardSlow(TArray::Empty);
-		if (TTypeInfo<T>::NeedsDestructor())
-			for (INT i = 0; i < ArrayNum; i++)
+		if( TTypeInfo<T>::NeedsDestructor() )
+			for( INT i=0; i<ArrayNum; i++ )
 				(&(*this)(i))->~T();
-		FArray::Empty(sizeof(T), Slack);
+		FArray::Empty( sizeof(T), Slack );
 		unguardSlow;
 	}
 
 	// Functions dependent on Add, Remove.
-	TArray& operator=(const TArray& Other)
+	TArray& operator=( const TArray& Other )
 	{
 		guardSlow(TArray::operator=);
-		if (this != &Other)
+		if( this != &Other )
 		{
-			Empty(Other.ArrayNum);
-			for (INT i = 0; i < Other.ArrayNum; i++)
-				new(*this)T(Other(i));
+			Empty( Other.ArrayNum );
+			for( INT i=0; i<Other.ArrayNum; i++ )
+				new( *this )T( Other(i) );
 		}
 		return *this;
 		unguardSlow;
 	}
-	INT AddItem(const T& Item)
+	INT AddItem( const T& Item )
 	{
 		guardSlow(TArray::AddItem);
 		checkSlow(!TTypeInfo<T>::DefinitelyNeedsDestructor());
-		INT Index = Add();
-		(*this)(Index) = Item;
+		INT Index=Add();
+		(*this)(Index)=Item;
 		return Index;
 		unguardSlow;
 	}
-	INT AddZeroed(INT n = 1)
+	INT AddZeroed( INT n=1 )
 	{
 		guardSlow(TArray::AddZeroed);
-		return FArray::AddZeroed(sizeof(T), n);
+		return FArray::AddZeroed( sizeof(T), n );
 		unguardSlow;
 	}
-	INT AddUniqueItem(const T& Item)
+	INT AddUniqueItem( const T& Item )
 	{
 		guardSlow(TArray::AddUniqueItem);
 		checkSlow(!TTypeInfo<T>::DefinitelyNeedsDestructor());
-		for (INT Index = 0; Index < ArrayNum; Index++)
-			if ((*this)(Index) == Item)
+		for( INT Index=0; Index<ArrayNum; Index++ )
+			if( (*this)(Index)==Item )
 				return Index;
-		return AddItem(Item);
+		return AddItem( Item );
 		unguardSlow;
 	}
-	INT RemoveItem(const T& Item)
+	INT RemoveItem( const T& Item )
 	{
 		guardSlow(TArray::RemoveItem);
-		INT OriginalNum = ArrayNum;
-		for (INT Index = 0; Index < ArrayNum; Index++)
-			if ((*this)(Index) == Item)
-				Remove(Index--);
+		INT OriginalNum=ArrayNum;
+		for( INT Index=0; Index<ArrayNum; Index++ )
+			if( (*this)(Index)==Item )
+				Remove( Index-- );
 		return OriginalNum - ArrayNum;
 		unguardSlow;
 	}
@@ -596,243 +596,18 @@ public:
 	class TIterator
 	{
 	public:
-		TIterator(TArray<T>& InArray) : Array(InArray), Index(-1) { ++* this; }
-		void operator++() { ++Index; }
-		void RemoveCurrent() { Array.Remove(Index--); }
-		INT GetIndex()   const { return Index; }
-		operator UBOOL() const { return Index < Array.Num(); }
-		T& operator*()   const { return Array(Index); }
-		T* operator->()  const { return &Array(Index); }
-		T& GetCurrent()  const { return Array(Index); }
-		T& GetPrev()     const { return Array(Index ? Index - 1 : Array.Num() - 1); }
-		T& GetNext()     const { return Array(Index < Array.Num() - 1 ? Index + 1 : 0); }
+		TIterator( TArray<T>& InArray ) : Array(InArray), Index(-1) { ++*this;      }
+		void operator++()      { ++Index;                                           }
+		void RemoveCurrent()   { Array.Remove(Index--); }
+		INT GetIndex()   const { return Index;                                      }
+		operator UBOOL() const { return Index < Array.Num();                        }
+		T& operator*()   const { return Array(Index);                               }
+		T* operator->()  const { return &Array(Index);                              }
+		T& GetCurrent()  const { return Array( Index );                             }
+		T& GetPrev()     const { return Array( Index ? Index-1 : Array.Num()-1 );   }
+		T& GetNext()     const { return Array( Index<Array.Num()-1 ? Index+1 : 0 ); }
 	private:
 		TArray<T>& Array;
-		INT Index;
-	};
-};
-
-//
-// Templated dynamic array.
-//
-template<> class DLL_EXPORT TArray<BYTE> : public FArray
-{
-public:
-	typedef BYTE ElementType;
-	TArray()
-		: FArray()
-	{}
-	TArray(INT InNum)
-		: FArray(InNum, sizeof(BYTE))
-	{}
-	TArray(const TArray& Other)
-		: FArray(Other.ArrayNum, sizeof(BYTE))
-	{
-		guardSlow(TArray::copyctor);
-		appMemcpy(&(*this)(0), &Other(0), ArrayNum * sizeof(BYTE));
-		unguardSlow;
-	}
-	TArray(ENoInit)
-		: FArray(E_NoInit)
-	{}
-	~TArray()
-	{
-		checkSlow(ArrayNum >= 0);
-		checkSlow(ArrayMax >= ArrayNum);
-		Remove(0, ArrayNum);
-	}
-	BYTE& operator()(INT i)
-	{
-		guardSlow(TArray::operator());
-		checkSlow(i >= 0);
-		checkSlow(i <= ArrayNum);
-		checkSlow(ArrayMax >= ArrayNum);
-		return ((BYTE*)Data)[i];
-		unguardSlow;
-	}
-	const BYTE& operator()(INT i) const
-	{
-		guardSlow(TArray::operator());
-		checkSlow(i >= 0);
-		checkSlow(i <= ArrayNum);
-		checkSlow(ArrayMax >= ArrayNum);
-		return ((BYTE*)Data)[i];
-		unguardSlow;
-	}
-	BYTE Pop()
-	{
-		guardSlow(TArray::Pop);
-		check(ArrayNum>0);
-		checkSlow(ArrayMax >= ArrayNum);
-		BYTE Result = ((BYTE*)Data)[ArrayNum - 1];
-		Remove(ArrayNum - 1);
-		return Result;
-		unguardSlow;
-	}
-	BYTE& Last(INT c = 0)
-	{
-		guardSlow(TArray::Last);
-		check(c<ArrayNum);
-		checkSlow(ArrayMax >= ArrayNum);
-		return ((BYTE*)Data)[ArrayNum - c - 1];
-		unguardSlow;
-	}
-	const BYTE& Last(INT c = 0) const
-	{
-		guardSlow(TArray::Last);
-		checkSlow(c<ArrayNum);
-		checkSlow(ArrayMax >= ArrayNum);
-		return ((BYTE*)Data)[ArrayNum - c - 1];
-		unguardSlow;
-	}
-	void Shrink()
-	{
-		guardSlow(TArray::Shrink);
-		FArray::Shrink(sizeof(BYTE));
-		unguardSlow;
-	}
-	UBOOL FindItem(const BYTE& Item, INT& Index) const
-	{
-		guardSlow(TArray::FindItem);
-		for (Index = 0; Index<ArrayNum; Index++)
-			if ((*this)(Index) == Item)
-				return 1;
-		return 0;
-		unguardSlow;
-	}
-	INT FindItemIndex(const BYTE& Item) const
-	{
-		guardSlow(TArray::FindItemIndex);
-		for (INT Index = 0; Index<ArrayNum; Index++)
-			if ((*this)(Index) == Item)
-				return Index;
-		return INDEX_NONE;
-		unguardSlow;
-	}
-	friend FArchive& operator<<(FArchive& Ar, TArray& A)
-	{
-		guard(TArray << );
-		A.CountBytes(Ar);
-		// Serialize simple bytes which require no construction or destruction.
-		Ar << AR_INDEX(A.ArrayNum);
-		if (Ar.IsLoading())
-		{
-			A.ArrayMax = A.ArrayNum;
-			A.Realloc(sizeof(BYTE));
-		}
-		Ar.Serialize(&A(0), A.Num());
-		return Ar;
-		unguard;
-	}
-	void CountBytes(FArchive& Ar)
-	{
-		guardSlow(TArray::CountBytes);
-		FArray::CountBytes(Ar, sizeof(BYTE));
-		unguardSlow;
-	}
-
-	// Add, Insert, Remove, Empty interface.
-	INT Add(INT n = 1)
-	{
-		guardSlow(TArray::Add);
-		checkSlow(!TTypeInfo<T>::DefinitelyNeedsDestructor());
-		return FArray::Add(n, sizeof(BYTE));
-		unguardSlow;
-	}
-	void Insert(INT Index, INT Count = 1)
-	{
-		guardSlow(TArray::Insert);
-		checkSlow(!TTypeInfo<T>::DefinitelyNeedsDestructor());
-		FArray::Insert(Index, Count, sizeof(BYTE));
-		unguardSlow;
-	}
-	void InsertZeroed(INT Index, INT Count = 1)
-	{
-		guardSlow(TArray::InsertZeroed);
-		checkSlow(!TTypeInfo<T>::DefinitelyNeedsDestructor());
-		FArray::InsertZeroed(Index, Count, sizeof(BYTE));
-		unguardSlow;
-	}
-	void Remove(INT Index, INT Count = 1)
-	{
-		guardSlow(TArray::Remove);
-		check(Index >= 0);
-		check(Index <= ArrayNum);
-		check(Index + Count <= ArrayNum);
-		FArray::Remove(Index, Count, sizeof(BYTE));
-		unguardSlow;
-	}
-	void Empty(INT Slack = 0)
-	{
-		guardSlow(TArray::Empty);
-		FArray::Empty(sizeof(BYTE), Slack);
-		unguardSlow;
-	}
-
-	// Functions dependent on Add, Remove.
-	TArray& operator=(const TArray& Other)
-	{
-		guardSlow(TArray::operator=);
-		if (this != &Other)
-		{
-			Empty(Other.ArrayNum);
-			appMemcpy(&(*this)(0), &Other(0), ArrayNum * sizeof(BYTE));
-		}
-		return *this;
-		unguardSlow;
-	}
-	INT AddItem(const BYTE& Item)
-	{
-		guardSlow(TArray::AddItem);
-		checkSlow(!TTypeInfo<BYTE>::DefinitelyNeedsDestructor());
-		INT Index = Add();
-		(*this)(Index) = Item;
-		return Index;
-		unguardSlow;
-	}
-	INT AddZeroed(INT n = 1)
-	{
-		guardSlow(TArray::AddZeroed);
-		return FArray::AddZeroed(sizeof(BYTE), n);
-		unguardSlow;
-	}
-	INT AddUniqueItem(const BYTE& Item)
-	{
-		guardSlow(TArray::AddUniqueItem);
-		checkSlow(!TTypeInfo<BYTE>::DefinitelyNeedsDestructor());
-		for (INT Index = 0; Index<ArrayNum; Index++)
-			if ((*this)(Index) == Item)
-				return Index;
-		return AddItem(Item);
-		unguardSlow;
-	}
-	INT RemoveItem(const BYTE& Item)
-	{
-		guardSlow(TArray::RemoveItem);
-		INT OriginalNum = ArrayNum;
-		for (INT Index = 0; Index<ArrayNum; Index++)
-			if ((*this)(Index) == Item)
-				Remove(Index--);
-		return OriginalNum - ArrayNum;
-		unguardSlow;
-	}
-
-	// Iterator.
-	class TIterator
-	{
-	public:
-		TIterator(TArray<BYTE>& InArray) : Array(InArray), Index(-1) { ++*this; }
-		void operator++() { ++Index; }
-		void RemoveCurrent() { Array.Remove(Index--); }
-		INT GetIndex()   const { return Index; }
-		operator UBOOL() const { return Index < Array.Num(); }
-		BYTE& operator*()   const { return Array(Index); }
-		BYTE* operator->()  const { return &Array(Index); }
-		BYTE& GetCurrent()  const { return Array(Index); }
-		BYTE& GetPrev()     const { return Array(Index ? Index - 1 : Array.Num() - 1); }
-		BYTE& GetNext()     const { return Array(Index<Array.Num() - 1 ? Index + 1 : 0); }
-	private:
-		TArray<BYTE>& Array;
 		INT Index;
 	};
 };
@@ -1632,7 +1407,12 @@ protected:
 		guardSlow(TMapBase::Rehash);
 		checkSlow(!(HashCount&(HashCount-1)));
 		checkSlow(HashCount>=8);
+#ifdef NO_APP_MALLOC
+		INT* NewHash = new INT[HashCount];
+#else
 		INT* NewHash = new(TEXT("HashMapHash"))INT[HashCount];
+#error Define NO_APP_MALLOC to avoid issues
+#endif
 		{for( INT i=0; i<HashCount; i++ )
 		{
 			NewHash[i] = INDEX_NONE;

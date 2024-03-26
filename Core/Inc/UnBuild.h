@@ -39,7 +39,7 @@
 
 // Whether to track call-stack errors in performance critical routines.
 #ifndef DO_GUARD_SLOW
-#define DO_GUARD_SLOW 0
+#define DO_GUARD_SLOW 1
 #endif
 
 // Whether to perform CPU-intensive timing of critical loops.

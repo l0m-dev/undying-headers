@@ -17,7 +17,7 @@ Revision history:
 //
 // Maximum aliases.
 //
-enum {ALIAS_MAX=40};
+enum {ALIAS_MAX=80};
 
 /*-----------------------------------------------------------------------------
 	UInput.

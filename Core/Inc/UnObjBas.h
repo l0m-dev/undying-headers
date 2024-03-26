@@ -39,6 +39,7 @@ enum EPackageFlags
 	PKG_ServerSideOnly  = 0x0004,   // Only needed on the server side.
 	PKG_BrokenLinks     = 0x0008,   // Loaded from linker with broken import links.
 	PKG_Unsecure        = 0x0010,   // Not trusted.
+	PKG_Compressed      = 0x0020,	// Compressed.
 	PKG_Need			= 0x8000,	// Client needs to download this package.
 };
 
@@ -648,7 +649,7 @@ public:
 	{
 		return Outer;
 	}
-	DWORD GetIndex() const
+	INT GetIndex() const
 	{
 		return Index;
 	}

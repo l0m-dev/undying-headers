@@ -21,7 +21,6 @@ enum EMemOned   {MEM_Oned  =1};
 //
 // Simple linear-allocation memory stack.
 // Items are allocated via PushBytes() or the specialized operator new()s.
-// Items are freed en masse by using FMemMark to Pop() them.
 //
 class CORE_API FMemStack
 {
@@ -38,29 +37,43 @@ public:
 
 		checkSlow(AllocSize>=0);
 		checkSlow((Align&(Align-1))==0);
-		checkSlow(Top<=End);
+		checkSlow(Current<=MaxCurrent);
 
 		// Try to get memory from the current chunk.
-		BYTE* Result = (BYTE *)(((INT)Top+(Align-1))&~(Align-1));
-		Top = Result + AllocSize;
+		BYTE* Result = (BYTE *)(((INT)Current+(Align-1))&~(Align-1));
+		Current = Result + AllocSize;
 
 		// Make sure we didn't overflow.
-		if( Top > End )
+		if( Current > MaxCurrent )
 		{
-			// We'd pass the end of the current chunk, so allocate a new one.
-			AllocateNewChunk( AllocSize + Align );
-			Result = (BYTE *)(((INT)Top+(Align-1))&~(Align-1));
-			Top    = Result + AllocSize;
+			MaxSizes += Base - MaxCurrent;
+			MaxCurrent = Current;
+			MaxSizes += Current - Base;
 		}
-		return Result;
+
+		return Current < Top ? Result : NULL;
 		unguardSlow;
 	}
 
 	// Main functions.
-	void Init( INT DefaultChunkSize );
+	void Init(BYTE* Memory, INT InDefaultChunkSize)
+	{
+		guardSlow(FMemStack::Init);
+
+		Base = Memory;
+		Current = Memory;
+		MaxCurrent = Memory;
+		Top = &Memory[InDefaultChunkSize];
+		TotalSizes += InDefaultChunkSize;
+
+		unguardSlow;
+	}
 	void Exit();
 	void Tick();
-	INT GetByteCount();
+	INT GetByteCount()
+	{
+		return Current - Base;
+	}
 
 	// Friends.
 	friend class FMemMark;
@@ -68,30 +81,16 @@ public:
 	friend void* operator new( size_t Size, FMemStack& Mem, EMemZeroed Tag, INT Count=1, INT Align=DEFAULT_ALIGNMENT );
 	friend void* operator new( size_t Size, FMemStack& Mem, EMemOned Tag, INT Count=1, INT Align=DEFAULT_ALIGNMENT );
 
-	// Types.
-	struct FTaggedMemory
-	{
-		FTaggedMemory* Next;
-		INT DataSize;
-		BYTE Data[1];
-	};
-
 private:
-	// Constants.
-	enum {MAX_CHUNKS=1024};
-
 	// Variables.
-	BYTE*			Top;				// Top of current chunk (Top<=End).
-	BYTE*			End;				// End of current chunk.
-	INT				DefaultChunkSize;	// Maximum chunk size to allocate.
-	FTaggedMemory*	TopChunk;			// Only chunks 0..ActiveChunks-1 are valid.
+	BYTE* Base;
+	BYTE* Current;
+	BYTE* MaxCurrent;
+	BYTE* Top;
 
 	// Static.
-	static FTaggedMemory* UnusedChunks;
-
-	// Functions.
-	BYTE* AllocateNewChunk( INT MinSize );
-	void FreeChunks( FTaggedMemory* NewTopChunk );
+	static INT TotalSizes;
+	static INT MaxSizes;
 };
 
 /*-----------------------------------------------------------------------------
@@ -174,7 +173,6 @@ public:
 		guardSlow(FMemMark::FMemMark);
 		Mem          = &InMem;
 		Top          = Mem->Top;
-		SavedChunk   = Mem->TopChunk;
 		unguardSlow;
 	}
 
@@ -183,10 +181,6 @@ public:
 	{
 		// Check state.
 		guardSlow(FMemMark::Pop);
-
-		// Unlock any new chunks that were allocated.
-		if( SavedChunk != Mem->TopChunk )
-			Mem->FreeChunks( SavedChunk );
 
 		// Restore the memory stack's state.
 		Mem->Top = Top;
@@ -197,7 +191,6 @@ private:
 	// Implementation variables.
 	FMemStack* Mem;
 	BYTE* Top;
-	FMemStack::FTaggedMemory* SavedChunk;
 };
 
 /*-----------------------------------------------------------------------------

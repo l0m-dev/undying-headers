@@ -129,6 +129,26 @@ enum ELevelTick
 };
 #endif
 
+struct QueueManager
+{
+	struct QueueNode
+	{
+		int Priority;
+	};
+	int unk1;
+	int unk2;
+	int unk3;
+	int unk4;
+	int unk5;
+	int unk6;
+	int unk7;
+	int unk8;
+	int unk9;
+	int unk10;
+	int unk11;
+	int unk12;
+};
+
 //
 // The level object.  Contains the level's actor list, Bsp information, and brush list.
 //
@@ -147,6 +167,9 @@ class ENGINE_API ULevel : public ULevelBase
 	FTime                   TimeSeconds;
 	TMap<FString,FString>	TravelInfo;
 
+	int unk;
+	QueueManager QueMgr; // for ticking actors in order based on their Priority
+
 	// Only valid in memory.
 	FCollisionHashBase* Hash;
 	class FMovingBrushTrackerBase* BrushTracker;
@@ -155,6 +178,8 @@ class ENGINE_API ULevel : public ULevelBase
 	UBOOL InTick, Ticked;
 	INT iFirstDynamicActor, iFirstNetRelevantActor, NetTag;
 	BYTE ZoneDist[64][64];
+
+	FVector unkVec;
 
 	// Temporary stats.
 	INT NetTickCycles, NetDiffCycles, ActorTickCycles, AudioTickCycles, FindPathCycles, MoveCycles, NumMoves, NumReps, NumPV, GetRelevantCycles, NumRPC, SeePlayer, Spawning, Unused;

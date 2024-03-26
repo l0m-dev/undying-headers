@@ -75,6 +75,8 @@ public:
 	{}
 	virtual void Flush()
 	{}
+	virtual void Compress()
+	{}
 	virtual UBOOL Close()
 	{
 		return !ArIsError;
