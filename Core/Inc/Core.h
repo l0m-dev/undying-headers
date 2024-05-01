@@ -211,7 +211,7 @@ public:
 class CORE_API FMalloc
 {
 public:
-	virtual void* MallocAligned(DWORD Count, const TCHAR* Tag, INT Alignment) = 0;
+	virtual void* MallocNameEntry(DWORD Count, const TCHAR* Tag, INT Alignment) { return Malloc(Count, Tag); }
 	virtual void* Malloc(DWORD Count, const TCHAR* Tag) = 0;
 	virtual void* Realloc(void* Original, DWORD Count, const TCHAR* Tag) = 0;
 	virtual void Free(void* Original) = 0;
@@ -340,6 +340,8 @@ public:
 
 // Core globals.
 CORE_API extern FMemStack				GMem;
+CORE_API extern FMemStack				GDynMem;
+CORE_API extern FMemStack				GSceneMem;
 CORE_API extern FOutputDevice* GLog;
 CORE_API extern FOutputDevice* GNull;
 CORE_API extern FOutputDevice* GThrow;

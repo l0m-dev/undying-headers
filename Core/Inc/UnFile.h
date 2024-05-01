@@ -446,6 +446,7 @@ CORE_API void appMemzero( void* Dest, INT Count );
 //
 // C++ style memory allocation.
 //
+#if OLD_ALLOC
 inline void* operator new( unsigned int Size, const TCHAR* Tag )
 {
 	guardSlow(new);
@@ -483,6 +484,17 @@ inline void operator delete[]( void* Ptr )
 	guardSlow(delete);
 	appFree( Ptr );
 	unguardSlow;
+}
+#endif
+#else
+inline void* operator new( unsigned int Size, const TCHAR* Tag )
+{
+	return operator new( Size );
+}
+
+inline void* operator new[]( unsigned int Size, const TCHAR* Tag )
+{
+	return operator new[]( Size );
 }
 #endif
 

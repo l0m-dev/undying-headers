@@ -68,8 +68,18 @@ public:
 
 		unguardSlow;
 	}
-	void Exit();
-	void Tick();
+	void Exit()
+	{
+		guard(FMemStack::Exit);
+		Tick();
+		unguard;
+	}
+	void Tick()
+	{
+		guard(FMemStack::Tick);
+		Current = Base;
+		unguard;
+	}
 	INT GetByteCount()
 	{
 		return Current - Base;
@@ -172,7 +182,7 @@ public:
 	{
 		guardSlow(FMemMark::FMemMark);
 		Mem          = &InMem;
-		Top          = Mem->Top;
+		Top          = Mem->Current;
 		unguardSlow;
 	}
 
@@ -183,14 +193,15 @@ public:
 		guardSlow(FMemMark::Pop);
 
 		// Restore the memory stack's state.
-		Mem->Top = Top;
+		if (Mem)
+			Mem->Current = Top;
 		unguardSlow;
 	}
 
 private:
 	// Implementation variables.
-	FMemStack* Mem;
 	BYTE* Top;
+	FMemStack* Mem;
 };
 
 /*-----------------------------------------------------------------------------

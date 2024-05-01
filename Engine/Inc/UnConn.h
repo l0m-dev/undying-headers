@@ -67,7 +67,6 @@ class ENGINE_API UNetConnection : public UPlayer
 
 	// Negotiated parameters.
 	INT				ProtocolVersion;		// Protocol version we're communicating with (<=PROTOCOL_VERSION).
-	INT				RemoteVersion;			// The remote engine version number
 	INT				MaxPacket;				// Maximum packet size.
 	INT				PacketOverhead;			// Bytes overhead per packet sent.
 	UBOOL			InternalAck;			// Internally ack all packets, for 100% reliable connections.
@@ -111,7 +110,7 @@ class ENGINE_API UNetConnection : public UPlayer
 	INT				InOrdAcc,  OutOrdAcc;	// Out of order accumulator.
 	INT				LagCount;				// Counter for lag measurement.
 	INT				HighLossCount;			// Counts high packet loss.
-	FTime			LastTime,CumulativeTime;
+	FTime			CurrentTime,LastTime,CumulativeTime;
 	FLOAT			FrameTime,AverageFrameTime;
 	INT				CountedFrames;
 

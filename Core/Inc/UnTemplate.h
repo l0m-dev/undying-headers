@@ -1407,12 +1407,7 @@ protected:
 		guardSlow(TMapBase::Rehash);
 		checkSlow(!(HashCount&(HashCount-1)));
 		checkSlow(HashCount>=8);
-#ifdef NO_APP_MALLOC
-		INT* NewHash = new INT[HashCount];
-#else
 		INT* NewHash = new(TEXT("HashMapHash"))INT[HashCount];
-#error Define NO_APP_MALLOC to avoid issues
-#endif
 		{for( INT i=0; i<HashCount; i++ )
 		{
 			NewHash[i] = INDEX_NONE;
@@ -1425,7 +1420,7 @@ protected:
 			NewHash[iHash] = i;
 		}}
 		if( Hash )
-			delete Hash;
+			delete[] Hash;
 		Hash = NewHash;
 		unguardSlow;
 	}
@@ -1477,7 +1472,7 @@ public:
 	{
 		guardSlow(TMapBase::~TMapBase);
 		if( Hash )
-			delete Hash;
+			delete[] Hash;
 		Hash = NULL;
 		HashCount = 0;
 		unguardSlow;

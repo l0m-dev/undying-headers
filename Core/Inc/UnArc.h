@@ -75,7 +75,7 @@ public:
 	{}
 	virtual void Flush()
 	{}
-	virtual void Compress()
+	virtual void SetCompressed()
 	{}
 	virtual UBOOL Close()
 	{

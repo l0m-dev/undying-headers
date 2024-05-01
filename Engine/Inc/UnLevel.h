@@ -237,7 +237,7 @@ class ENGINE_API ULevel : public ULevelBase
 	virtual void WelcomePlayer( UNetConnection* Connection, char* Optional = "" );
 	#endif
 
-	virtual AZoneInfo* GetZoneActor( FVector const& );
+	virtual INT GetZone( const FVector& Location );
 
 	// FNetworkNotify interface.
 	EAcceptConnection NotifyAcceptingConnection();
